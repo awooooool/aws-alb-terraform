@@ -11,6 +11,15 @@ provider "aws" {
   region = "ap-southeast-1"
 }
 
+resource "aws_vpc" "main" {
+  cidr_block = "10.0.0.0/16"
+}
+
+resource "aws_subnet" "Private" {
+  vpc_id     = aws_vpc.main.id
+  cidr_block = "10.0.10.0/24"
+}
+
 resource "aws_security_group" "sg" {
   name        = "Allow SSH and HTTP 8080"
   description = "Allow SSH and HTTP 8080 from anywhere"
@@ -51,16 +60,16 @@ data "aws_ami" "Amazon-Linux-2023" {
 }
 
 data "local_file" "user_data" {
-    filename = "${path.module}/UserData.txt"
+  filename = "${path.module}/UserData.txt"
 }
 
 resource "aws_instance" "FastAPI" {
-  ami                    = data.aws_ami.Amazon-Linux-2023.id
-  instance_type          = "t3.micro"
-  count                  = 5
-  key_name               = "voclab"
-  user_data              = data.local_file.user_data.content
-  vpc_security_group_ids = [aws_security_group.sg.id]
+  ami           = data.aws_ami.Amazon-Linux-2023.id
+  instance_type = "t3.micro"
+  count         = 5
+  key_name      = "voclab"
+  user_data     = data.local_file.user_data.content
+  subnet_id     = aws_subnet.Private.id
 
   tags = {
     Name      = "FastAPI"
