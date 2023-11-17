@@ -1,0 +1,8 @@
+#!/bin/bash
+
+#### THIS USERDATA WILL RUN FASTAPI WITH ROOT USER, BE WARNED!!!
+
+yum install tmux python-pip git -y
+git clone https://github.com/awooooool/aws-load-balancer-test.git /opt/aws-load-balancer-test
+pip install -r /opt/aws-load-balancer-test/requirements.txt
+tmux new-session -d -s fastapi "cd /opt/aws-load-balancer-test; uvicorn main:app --host 0.0.0.0 --port 8080;"
