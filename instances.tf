@@ -15,10 +15,14 @@ data "local_file" "user_data" {
   filename = "${path.module}/UserData.txt"
 }
 
+variable "Instances-Count" {
+  type = number
+}
+
 resource "aws_instance" "FastAPI" {
   ami                         = data.aws_ami.Amazon-Linux-2023.id
   instance_type               = "t3.micro"
-  count                       = 5
+  count                       = var.Instances-Count
   user_data                   = data.local_file.user_data.content
   subnet_id                   = aws_subnet.Private.id
   associate_public_ip_address = false
