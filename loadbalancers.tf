@@ -1,7 +1,7 @@
 resource "aws_lb_target_group" "FastAPI" {
   name        = "FastAPI"
   target_type = "instance"
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = aws_vpc.Main.id
   port        = 8080
   protocol    = "HTTP"
 

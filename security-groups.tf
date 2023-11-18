@@ -1,13 +1,13 @@
 resource "aws_security_group" "Workers" {
   name        = "Allow from Load Balancer"
   description = "Allow HTTP 8080 from load balancer"
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = aws_vpc.Main.id
 }
 
 resource "aws_security_group" "Load-Balancer" {
   name        = "Load Balancer"
   description = "Allow HTTP and port 8080 to instances"
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = aws_vpc.Main.id
 }
 
 resource "aws_security_group_rule" "Load-Balancer-Ingress" {
