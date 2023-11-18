@@ -19,12 +19,20 @@ variable "Instances-Count" {
   type = number
 }
 
+resource "random_shuffle" "Instances-Subnet" {
+  input        = [aws_subnet.Private-A.id, aws_subnet.Private-B.id]
+  count        = 5
+  result_count = 1
+}
+
 resource "aws_instance" "FastAPI" {
+  for_each = {
+    for k, az in random_shuffle.Instances-Subnet : k => az
+  }
   ami                         = data.aws_ami.Amazon-Linux-2023.id
   instance_type               = "t3.micro"
-  count                       = var.Instances-Count
   user_data                   = data.local_file.user_data.content
-  subnet_id                   = aws_subnet.Private.id
+  subnet_id                   = each.value.result[0]
   associate_public_ip_address = false
   vpc_security_group_ids      = [aws_security_group.Workers.id]
 

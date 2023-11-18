@@ -10,7 +10,12 @@ resource "aws_subnet" "Public-B" {
   availability_zone = "ap-southeast-1b"
 }
 
-resource "aws_subnet" "Private" {
+resource "aws_subnet" "Private-A" {
   vpc_id     = aws_vpc.main.id
   cidr_block = "10.0.10.0/24"
+}
+
+resource "aws_subnet" "Private-B" {
+  vpc_id     = aws_vpc.main.id
+  cidr_block = "10.0.11.0/24"
 }
