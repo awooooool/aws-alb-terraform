@@ -24,14 +24,21 @@ resource "aws_internet_gateway" "IGW" {
 }
 
 resource "aws_nat_gateway" "NAT" {
-  subnet_id     = aws_subnet.Public.id
+  subnet_id     = aws_subnet.Public-A.id
   allocation_id = aws_eip.IP.id
-  depends_on    = [aws_subnet.Public, aws_eip.IP]
+  depends_on    = [aws_subnet.Public-A, aws_eip.IP]
 }
 
-resource "aws_subnet" "Public" {
-  vpc_id     = aws_vpc.main.id
-  cidr_block = "10.0.0.0/24"
+resource "aws_subnet" "Public-A" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.0.0/24"
+  availability_zone = "ap-southeast-1a"
+}
+
+resource "aws_subnet" "Public-B" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.1.0/24"
+  availability_zone = "ap-southeast-1b"
 }
 
 resource "aws_subnet" "Private" {
@@ -57,8 +64,13 @@ resource "aws_route_table" "Private" {
   }
 }
 
-resource "aws_route_table_association" "Public" {
-  subnet_id      = aws_subnet.Public.id
+resource "aws_route_table_association" "Public-A" {
+  subnet_id      = aws_subnet.Public-A.id
+  route_table_id = aws_route_table.Public.id
+}
+
+resource "aws_route_table_association" "Public-B" {
+  subnet_id      = aws_subnet.Public-B.id
   route_table_id = aws_route_table.Public.id
 }
 
@@ -132,8 +144,24 @@ resource "aws_lb_target_group_attachment" "FastAPI" {
   }
   target_group_arn = aws_lb_target_group.FastAPI.arn
   target_id        = each.value.id
+}
 
-  depends_on = [aws_instance.FastAPI]
+resource "aws_lb" "LoadBalancer" {
+  name               = "FastAPI-LoadBalancer"
+  load_balancer_type = "application"
+  internal           = false
+  security_groups    = [aws_security_group.Load-Balancer.id]
+  subnets            = [aws_subnet.Public-A.id, aws_subnet.Public-B.id]
+}
+
+resource "aws_lb_listener" "LoadBalancer" {
+  load_balancer_arn = aws_lb.LoadBalancer.arn
+  port              = 80
+  protocol          = "HTTP"
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.FastAPI.arn
+  }
 }
 
 data "aws_ami" "Amazon-Linux-2023" {
