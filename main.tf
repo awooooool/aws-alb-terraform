@@ -94,6 +94,23 @@ resource "aws_security_group" "sg" {
   }
 }
 
+resource "aws_lb_target_group" "FastAPI" {
+  name        = "FastAPI"
+  target_type = "instance"
+  vpc_id      = aws_vpc.main.id
+  port        = 8080
+  protocol    = "HTTP"
+
+}
+
+resource "aws_lb_target_group_attachment" "FastAPI" {
+  for_each = {
+    for k, v in aws_instance.FastAPI : v.id => v
+  }
+  target_group_arn = aws_lb_target_group.FastAPI.arn
+  target_id        = each.value.id
+}
+
 data "aws_ami" "Amazon-Linux-2023" {
   most_recent = true
   owners      = ["amazon"]
