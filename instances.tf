@@ -35,6 +35,7 @@ resource "aws_instance" "FastAPI" {
   subnet_id                   = each.value.result[0]
   associate_public_ip_address = false
   vpc_security_group_ids      = [aws_security_group.Workers.id]
+  depends_on                  = [aws_nat_gateway.NAT] // To wait for NAT Gateway to active before deploying instance
 
   tags = {
     Name      = "FastAPI"
