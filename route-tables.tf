@@ -16,22 +16,14 @@ resource "aws_route_table" "Private" {
   }
 }
 
-resource "aws_route_table_association" "Public-A" {
-  subnet_id      = aws_subnet.Public-A.id
+resource "aws_route_table_association" "Public" {
+  count          = length(aws_subnet.Public)
+  subnet_id      = aws_subnet.Public[count.index].id
   route_table_id = aws_route_table.Public.id
 }
 
-resource "aws_route_table_association" "Public-B" {
-  subnet_id      = aws_subnet.Public-B.id
-  route_table_id = aws_route_table.Public.id
-}
-
-resource "aws_route_table_association" "Private-A" {
-  subnet_id      = aws_subnet.Private-A.id
-  route_table_id = aws_route_table.Private.id
-}
-
-resource "aws_route_table_association" "Private-B" {
-  subnet_id      = aws_subnet.Private-B.id
+resource "aws_route_table_association" "Private" {
+  count          = length(aws_subnet.Private)
+  subnet_id      = aws_subnet.Private[count.index].id
   route_table_id = aws_route_table.Private.id
 }

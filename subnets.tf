@@ -1,28 +1,19 @@
-resource "random_shuffle" "Subnet-AZ" {
-  input        = data.aws_availability_zones.Subnets-AZ.names
-  result_count = 2
+// TODO: Subnet CIDR
+locals {
+  cidr_public  = [for cidr in range(var.Total-AZ) : cidrsubnet("10.0.0.0/16", 8, 0 + cidr)]
+  cidr_private = [for cidr in range(var.Total-AZ) : cidrsubnet("10.0.0.0/16", 8, 128 + cidr)]
 }
 
-resource "aws_subnet" "Public-A" {
+resource "aws_subnet" "Public" {
+  count             = var.Total-AZ
   vpc_id            = aws_vpc.Main.id
-  cidr_block        = "10.0.0.0/24"
-  availability_zone = random_shuffle.Subnet-AZ.result[0]
+  cidr_block        = local.cidr_public[count.index]
+  availability_zone = data.aws_availability_zones.Subnets-AZ.names[count.index]
 }
 
-resource "aws_subnet" "Public-B" {
+resource "aws_subnet" "Private" {
+  count             = var.Total-AZ
   vpc_id            = aws_vpc.Main.id
-  cidr_block        = "10.0.1.0/24"
-  availability_zone = random_shuffle.Subnet-AZ.result[1]
-}
-
-resource "aws_subnet" "Private-A" {
-  vpc_id            = aws_vpc.Main.id
-  cidr_block        = "10.0.10.0/24"
-  availability_zone = random_shuffle.Subnet-AZ.result[0]
-}
-
-resource "aws_subnet" "Private-B" {
-  vpc_id            = aws_vpc.Main.id
-  cidr_block        = "10.0.11.0/24"
-  availability_zone = random_shuffle.Subnet-AZ.result[1]
+  cidr_block        = local.cidr_private[count.index]
+  availability_zone = data.aws_availability_zones.Subnets-AZ.names[count.index]
 }

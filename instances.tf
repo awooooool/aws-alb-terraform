@@ -20,7 +20,7 @@ variable "Instances-Count" {
 }
 
 resource "random_shuffle" "Instances-Subnet" {
-  input        = [aws_subnet.Private-A.id, aws_subnet.Private-B.id]
+  input        = aws_subnet.Private[*].id
   count        = var.Instances-Count
   result_count = 1
 }

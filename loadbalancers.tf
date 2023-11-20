@@ -20,7 +20,7 @@ resource "aws_lb" "LoadBalancer" {
   load_balancer_type = "application"
   internal           = false
   security_groups    = [aws_security_group.Load-Balancer.id]
-  subnets            = [aws_subnet.Public-A.id, aws_subnet.Public-B.id]
+  subnets            = aws_subnet.Public[*].id
 }
 
 resource "aws_lb_listener" "LoadBalancer" {
