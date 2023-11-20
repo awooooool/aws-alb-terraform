@@ -19,5 +19,5 @@ variable "Total-AZ" {
 # See https://github.com/hashicorp/terraform/issues/25609#issuecomment-1057614400
 locals {
   validate_region   = contains(data.aws_regions.Regions.names, var.Region) ? true : tobool("Invalid region")
-  validate_total_az = var.Total-AZ > 0 && var.Total-AZ <= length(data.aws_availability_zones.Subnets-AZ.names) ? true : tobool("Invalid total AZ")
+  validate_total_az = var.Total-AZ >= 2 && var.Total-AZ <= length(data.aws_availability_zones.Subnets-AZ.names) ? true : tobool("Invalid total AZ")
 }
